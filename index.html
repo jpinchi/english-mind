@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EnglishMind">
+<meta name="theme-color" content="#0A0E1A">
+<title>EnglishMind – Tutor IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#D4AF37;--accent2:#b8860b;--bg:#0A0E1A;--card:#111827;--card2:#1a2235;
+  --text:#E8E8F0;--muted:#6B7280;--success:#22C55E;--err:#EF4444;--border:#2d3a52;
+  --safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+body{padding-top:var(--safe-top);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes glow{0%,100%{box-shadow:0 0 10px #D4AF3744;}50%{box-shadow:0 0 26px #D4AF3799;}}
+.fade-in{animation:fadeIn .4s ease both;}
+.glow{animation:glow 2.2s ease infinite;}
+.spin{animation:spin .8s linear infinite;}
+
+.header{position:sticky;top:0;z-index:100;background:rgba(17,24,39,.93);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.header-inner{max-width:680px;margin:0 auto;padding:0 16px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 10px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:17px;}
+.logo-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.streak{display:flex;align-items:center;gap:5px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;color:var(--accent);}
+.tabs{display:flex;}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:9px 16px;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:color .2s,border-color .2s;white-space:nowrap;}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.main{max-width:680px;margin:0 auto;padding:20px 16px calc(50px + var(--safe-bot));}
+
+.lbl{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;}
+select,input,textarea{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s;width:100%;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:rgba(212,175,55,.5);}
+textarea{resize:vertical;min-height:80px;}
+
+.btn{border:none;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:opacity .15s,transform .1s;display:inline-flex;align-items:center;gap:6px;}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.btn-gold{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0e1a;}
+.btn-green{background:rgba(34,197,94,.1);color:var(--success);border:1px solid rgba(34,197,94,.3)!important;}
+.btn-ghost{background:rgba(212,175,55,.1);color:var(--accent);border:1px solid rgba(212,175,55,.25)!important;}
+.btn-red{background:rgba(239,68,68,.1);color:var(--err);border:1px solid rgba(239,68,68,.3)!important;}
+.btn-full{width:100%;justify-content:center;padding:14px;}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.card-hd{background:linear-gradient(135deg,#1a2235,#111827);padding:20px 22px;border-bottom:1px solid var(--border);}
+.card-bd{padding:20px 22px;}
+.badge{display:inline-block;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+
+.controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;}
+.ctrl{flex:1;min-width:150px;}
+
+.q-wrap{margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid #1e2d45;}
+.q-wrap:last-of-type{border-bottom:none;}
+.q-row{display:flex;gap:10px;margin-bottom:10px;}
+.q-num{width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.opt{display:block;width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 13px;text-align:left;color:var(--text);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:7px;transition:all .15s;-webkit-appearance:none;}
+.opt:active{transform:translateX(2px);}
+.opt.sel{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.4)!important;}
+.opt.correct{background:rgba(34,197,94,.15)!important;border-color:var(--success)!important;}
+.opt.wrong{background:rgba(239,68,68,.15)!important;border-color:var(--err)!important;}
+.fb{border-radius:8px;padding:10px 13px;margin-top:8px;}
+.fb-ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);}
+.fb-fail{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);}
+
+.toast{border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;align-items:center;gap:8px;}
+.t-ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--success);}
+.t-err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--err);}
+.t-info{background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);color:var(--accent);}
+
+.stats-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.stat{flex:1;min-width:80px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px 15px;display:flex;align-items:center;gap:13px;margin-bottom:8px;}
+.empty{text-align:center;padding:50px 20px;background:var(--card);border-radius:14px;border:1px solid var(--border);}
+.spin-wrap{display:flex;align-items:center;gap:10px;justify-content:center;padding:28px;}
+.spinner{width:20px;height:20px;border:3px solid rgba(212,175,55,.25);border-top-color:var(--accent);border-radius:50%;}
+.tip-bar{background:#1a2235;border-top:1px solid var(--border);padding:13px 22px;display:flex;gap:10px;}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px;}
+.how-row{display:flex;gap:10px;margin-bottom:10px;background:var(--card2);border-radius:9px;padding:11px 13px;}
+.pwa-box{background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--muted);line-height:1.6;}
+
+@media(max-width:400px){.header-inner,.main{padding-left:12px;padding-right:12px;}.card-hd,.card-bd{padding:16px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">🎓</div>
+        <div>
+          <div class="logo-name">EnglishMind</div>
+          <div class="logo-sub">Tutor Personal IA</div>
+        </div>
+      </div>
+      <div class="streak">🔥 <span id="streak-count">0</span> días</div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="goTab('practice')">📚 Practicar</button>
+      <button class="tab" onclick="goTab('history')">📊 Progreso</button>
+      <button class="tab" onclick="goTab('settings')">⚙️ Config</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- PRACTICE -->
+  <div id="tab-practice" class="fade-in">
+    <div class="controls">
+      <div class="ctrl">
+        <label class="lbl">Nivel</label>
+        <select id="lvl">
+          <option>Beginner (A1-A2)</option>
+          <option selected>Intermediate (B1-B2)</option>
+          <option>Advanced (C1-C2)</option>
+        </select>
+      </div>
+      <button class="btn btn-gold glow" id="gen-btn" onclick="doGenerate()">⚡ Nuevo Examen</button>
+      <button class="btn btn-green" id="email-btn" onclick="doEmail()" style="display:none">📧 Email</button>
+    </div>
+    <div id="toasts"></div>
+    <div id="exam-area"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" style="display:none">
+    <h2 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Tu Progreso</h2>
+    <div class="stats-row">
+      <div class="stat"><div style="font-size:18px;margin-bottom:4px">📝</div><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--accent)" id="s-total">0</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Exámenes</div></div>
+      <div class="stat"><div style="font-size:18px;margin-bottom:4px">🔥</div><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--accent)" id="s-streak">0d</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Racha</div></div>
+      <div class="stat"><div style="font-size:18px;margin-bottom:4px">⭐</div><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--accent)" id="s-avg">0%</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Promedio</div></div>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="tab-settings" style="display:none">
+    <h2 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:6px">Configuración</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px">Opciones de la app.</p>
+    <div class="pwa-box">
+      <strong style="color:var(--accent)">📱 Instalar en iPhone:</strong><br>
+      Safari → botón <strong style="color:var(--text)">Compartir ⎋</strong> → <strong style="color:var(--text)">"Agregar a pantalla de inicio"</strong>
+    </div>
+    <div class="s-card">
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:14px">📧 Envío por Email</h3>
+      <label class="lbl">Tu email</label>
+      <input type="email" id="email-in" placeholder="ejemplo@gmail.com">
+      <div style="margin-top:12px">
+        <button class="btn btn-ghost" onclick="saveEmail()" id="save-email-btn">💾 Guardar</button>
+      </div>
+    </div>
+    <div class="s-card">
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">🤖 Cómo Funciona</h3>
+      <div class="how-row"><span style="font-size:16px">⚡</span><div><p style="font-size:13px;font-weight:600;margin-bottom:2px">IA en el Servidor</p><p style="font-size:12px;color:var(--muted);line-height:1.5">Claude genera cada examen en tiempo real. La API Key está segura en Vercel, nadie la ve.</p></div></div>
+      <div class="how-row"><span style="font-size:16px">📚</span><div><p style="font-size:13px;font-weight:600;margin-bottom:2px">14 Tipos de Ejercicio</p><p style="font-size:12px;color:var(--muted);line-height:1.5">Gramática, vocab, traducción, writing, speaking, idioms, conditionals…</p></div></div>
+      <div class="how-row"><span style="font-size:16px">🎯</span><div><p style="font-size:13px;font-weight:600;margin-bottom:2px">Adaptativo A1→C2</p><p style="font-size:12px;color:var(--muted);line-height:1.5">El nivel ajusta complejidad y vocabulario automáticamente.</p></div></div>
+      <div class="how-row" style="margin-bottom:0"><span style="font-size:16px">🔄</span><div><p style="font-size:13px;font-weight:600;margin-bottom:2px">Sin Repetición</p><p style="font-size:12px;color:var(--muted);line-height:1.5">Rota tipos y temas para que cada día sea diferente.</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const S={email:'',exam:null,examType:null,answers:{},submitted:false,feedbacks:{},history:[],stats:{total:0,streak:0,avgScore:0}};
+const TYPES=['grammar_correction','fill_blanks','reading_comprehension','vocabulary_matching','sentence_reorder','error_detection','translation_es_en','writing_prompt','speaking_prompt','phrasal_verbs','idioms','conditionals','word_formation','dialogue_completion'];
+
+async function ai(prompt,maxTokens=1500){
+  const r=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,maxTokens})});
+  if(!r.ok)throw new Error('Error '+(await r.text()));
+  const d=await r.json();
+  if(d.error)throw new Error(d.error);
+  return d.text;
+}
+function parseJSON(raw){
+  const s=raw.replace(/```json|```/g,'').trim();
+  const a=s.indexOf('{'),b=s.lastIndexOf('}');
+  if(a===-1||b===-1)throw new Error('Respuesta inválida');
+  return JSON.parse(s.slice(a,b+1));
+}
+function goTab(name){
+  ['practice','history','settings'].forEach((t,i)=>{
+    document.getElementById('tab-'+t).style.display=t===name?'block':'none';
+    document.querySelectorAll('.tab')[i].classList.toggle('on',t===name);
+  });
+  if(name==='history')renderHistory();
+}
+function toast(msg,type='info'){
+  const cls={ok:'t-ok',err:'t-err',info:'t-info'}[type]||'t-info';
+  document.getElementById('toasts').innerHTML=`<div class="toast ${cls}">${msg}</div>`;
+  setTimeout(()=>{document.getElementById('toasts').innerHTML='';},4000);
+}
+function pickType(){
+  const recent=S.history.slice(-6).map(h=>h.type);
+  const pool=TYPES.filter(t=>!recent.includes(t));
+  const arr=pool.length>0?pool:TYPES;
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+function tLabel(t){return(t||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+
+async function doGenerate(){
+  S.exam=null;S.answers={};S.submitted=false;S.feedbacks={};
+  S.examType=pickType();
+  document.getElementById('toasts').innerHTML='';
+  document.getElementById('email-btn').style.display='none';
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.innerHTML='<div class="spinner spin" style="width:16px;height:16px;border-width:2px"></div> Generando...';
+  renderExam(true);
+  const typeDesc={
+    grammar_correction:'Give 5 sentences with grammatical errors to fix',
+    fill_blanks:'Create 6 sentences with blanks and a word bank of 8 words',
+    reading_comprehension:'Write a short paragraph (80-100 words) and 4 multiple-choice questions',
+    vocabulary_matching:'Give 6 words and 6 definitions to match',
+    sentence_reorder:'Give 4 scrambled sentences to reorder',
+    error_detection:'Give 5 sentences each with one error to find and correct',
+    translation_es_en:'Give 5 Spanish sentences to translate into English',
+    writing_prompt:'Give 1 open-ended writing task (100-150 words)',
+    speaking_prompt:'Give 3 open-ended questions to answer in writing',
+    phrasal_verbs:'Create 6 gap-fill sentences using phrasal verbs with 4 options each',
+    idioms:'Present 4 idioms in context; student explains meaning',
+    conditionals:'Create 6 gap-fill sentences using conditional forms with 4 options each',
+    word_formation:'Give 5 sentences; student transforms a base word into correct form',
+    dialogue_completion:'Provide a 6-line dialogue with 3 blanks to complete'
+  };
+  const level=document.getElementById('lvl').value;
+  const recentTopics=S.history.slice(-10).map(h=>h.topic||'');
+  const prompt=`You are an expert English language teacher. Generate one unique English practice exam.
+Level: ${level}
+Type: ${typeDesc[S.examType]}
+Avoid recent topics: ${recentTopics.join(', ')||'none'}
+Choose a fresh real-world topic (travel,tech,health,work,culture,food,sports,environment).
+CRITICAL: Respond ONLY with raw valid JSON — no markdown, no backticks, no extra text.
+{
+  "title":"short exam title",
+  "topic":"one word topic",
+  "instructions":"clear 1-2 sentence instruction",
+  "questions":[{"id":1,"text":"question text","options":null,"correctAnswer":"model answer","explanation":"brief explanation"}],
+  "tip":"one practical English tip",
+  "estimatedMinutes":10
+}
+RULES:
+- options=null for: grammar_correction,error_detection,translation_es_en,writing_prompt,speaking_prompt,sentence_reorder,word_formation,dialogue_completion,fill_blanks,idioms,vocabulary_matching
+- options=["A) ..","B) ..","C) ..","D) .."] ONLY for: reading_comprehension,conditionals,phrasal_verbs
+- correctAnswer for MC must exactly match one option string
+- 4 to 6 questions total`;
+  try{
+    const raw=await ai(prompt,1500);
+    S.exam=parseJSON(raw);
+    renderExam();
+    document.getElementById('email-btn').style.display='';
+  }catch(e){
+    document.getElementById('exam-area').innerHTML=`<div class="toast t-err" style="flex-direction:column;align-items:flex-start;gap:8px;padding:16px"><strong>❌ Error al generar</strong><span style="font-size:12px;opacity:.8">${e.message}</span><button class="btn btn-red" onclick="doGenerate()" style="margin-top:4px">🔄 Reintentar</button></div>`;
+  }
+  btn.disabled=false;btn.innerHTML='⚡ Nuevo Examen';
+}
+
+async function doSubmit(){
+  if(!S.exam)return;
+  S.submitted=true;
+  document.getElementById('submit-btn')?.remove();
+  document.getElementById('exam-area').insertAdjacentHTML('beforeend',`<div id="fb-spin" class="spin-wrap"><div class="spinner spin"></div><span style="color:var(--muted);font-size:13px">Evaluando con IA…</span></div>`);
+  const fb={};
+  for(const q of S.exam.questions){
+    try{
+      if(!q.options){
+        const raw=await ai(`You are a warm English tutor. Evaluate briefly.
+Question: ${q.text}
+Student answer: ${S.answers[q.id]||'(no answer)'}
+Correct/model answer: ${q.correctAnswer}
+Respond ONLY raw JSON: {"isCorrect":true,"score":80,"feedback":"2 sentences","improvement":"one tip"}`,300);
+        fb[q.id]=parseJSON(raw);
+      }else{
+        const ok=S.answers[q.id]===q.correctAnswer;
+        fb[q.id]={isCorrect:ok,score:ok?100:0,feedback:ok?'✓ Correct!':'Correct: '+q.correctAnswer,improvement:q.explanation||''};
+      }
+    }catch{fb[q.id]={isCorrect:false,score:0,feedback:'No se pudo evaluar.',improvement:''};}
+  }
+  S.feedbacks=fb;
+  document.getElementById('fb-spin')?.remove();
+  const scores=Object.values(fb).map(f=>f.score);
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  S.history=[{type:S.examType,topic:S.exam.topic,score:avg,title:S.exam.title,date:new Date().toLocaleDateString()},...S.history].slice(0,30);
+  const total=S.stats.total+1;
+  S.stats={total,streak:S.stats.streak+1,avgScore:Math.round((S.stats.avgScore*S.stats.total+avg)/total)};
+  document.getElementById('streak-count').textContent=S.stats.streak;
+  renderExam();
+}
+
+async function doEmail(){
+  const email=S.email||document.getElementById('email-in')?.value;
+  if(!email){toast('❌ Configura tu email en ⚙️ Config','err');return;}
+  if(!S.exam)return;
+  toast('📤 Enviando…','info');
+  try{
+    const qs=(S.exam.questions||[]).map((q,i)=>`${i+1}. ${q.text}${q.options?'\n'+q.options.join('\n'):'\n(Open-ended)'}`).join('\n\n');
+    const body=`Daily English Practice - ${S.exam.title}\nType: ${tLabel(S.examType)} | ~${S.exam.estimatedMinutes} min\n\nInstructions:\n${S.exam.instructions}\n\n${qs}\n\nTip:\n${S.exam.tip}\n\n— EnglishMind AI Tutor`;
+    await ai(`Send email to ${email}, subject "🎓 Daily English Practice – ${S.exam.title}", body:\n\n${body}`,500);
+    toast(`✅ Enviado a ${email}`,'ok');
+  }catch{toast('❌ Error al enviar.','err');}
+}
+
+function saveEmail(){
+  S.email=document.getElementById('email-in').value;
+  const b=document.getElementById('save-email-btn');
+  b.innerHTML='✅ Guardado';b.style.color='var(--success)';
+  setTimeout(()=>{b.innerHTML='💾 Guardar';b.style.color='';},2000);
+}
+
+function renderExam(loading=false){
+  const el=document.getElementById('exam-area');
+  if(loading){el.innerHTML=`<div class="card"><div class="spin-wrap"><div class="spinner spin"></div><span style="color:var(--muted);font-size:13px">Generando examen con IA…</span></div></div>`;return;}
+  if(!S.exam){
+    el.innerHTML=`<div class="empty fade-in"><div style="font-size:50px;margin-bottom:14px">🎓</div><h3 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:8px">Listo para practicar</h3><p style="color:var(--muted);font-size:13px;line-height:1.65;max-width:280px;margin:0 auto 18px">14 tipos de ejercicios únicos generados con IA. Nunca el mismo dos veces.</p><button class="btn btn-gold glow" onclick="doGenerate()">⚡ Generar Primer Examen</button></div>`;
+    return;
+  }
+  const exam=S.exam,fb=S.feedbacks,ans=S.answers;
+  const badge=(t,bg,tc,bc)=>`<span class="badge" style="background:${bg};color:${tc};border:1px solid ${bc}">${t}</span>`;
+  const level=document.getElementById('lvl').value;
+  let qHTML='';
+  (exam.questions||[]).forEach((q,i)=>{
+    const f=fb[q.id];
+    const isLast=i===exam.questions.length-1;
+    const nS=f?`background:rgba(${f.isCorrect?'34,197,94':'239,68,68'},.15);border:1px solid var(--${f.isCorrect?'success':'err'});color:var(--${f.isCorrect?'success':'err'})`:`background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);color:var(--accent)`;
+    let inp='';
+    if(q.options){
+      inp=`<div style="margin-left:36px">`;
+      q.options.forEach(opt=>{
+        const sel=ans[q.id]===opt;
+        const cOpt=S.submitted&&opt===q.correctAnswer;
+        const wOpt=S.submitted&&sel&&!cOpt;
+        const cls='opt'+(sel&&!S.submitted?' sel':'')+(cOpt?' correct':'')+(wOpt?' wrong':'');
+        const click=S.submitted?'':` onclick="pickOpt(${q.id},this,'${opt.replace(/'/g,"\\'").replace(/"/g,"&quot;")}')"`;
+        inp+=`<button class="${cls}"${click}>${opt}</button>`;
+      });
+      inp+=`</div>`;
+    }else{
+      inp=`<textarea id="ta${q.id}" rows="3" placeholder="Write your answer here..." style="margin-top:6px;font-size:13px" ${S.submitted?'disabled':''} oninput="S.answers[${q.id}]=this.value">${ans[q.id]||''}</textarea>`;
+    }
+    let fbH='';
+    if(f)fbH=`<div class="fb ${f.isCorrect?'fb-ok':'fb-fail'}" style="margin-left:36px"><p style="color:var(--${f.isCorrect?'success':'err'});font-size:13px;font-weight:600;margin-bottom:3px">${f.feedback}</p>${f.improvement?`<p style="color:var(--muted);font-size:12px;font-style:italic">💡 ${f.improvement}</p>`:''}</div>`;
+    qHTML+=`<div class="q-wrap"${isLast?' style="border-bottom:none"':''}><div class="q-row"><div class="q-num" style="${nS}">${f?(f.isCorrect?'✓':'✗'):i+1}</div><p style="font-size:14px;line-height:1.65">${q.text}</p></div>${inp}${fbH}</div>`;
+  });
+  let bottom='';
+  if(!S.submitted){
+    bottom=`<button class="btn btn-gold btn-full" id="submit-btn" onclick="doSubmit()">✅ Enviar Respuestas</button>`;
+  }else if(Object.keys(fb).length>0){
+    const sc=Object.values(fb).map(f=>f.score);
+    const avg=Math.round(sc.reduce((a,b)=>a+b,0)/sc.length);
+    const e=avg>=80?'🏆':avg>=60?'👍':'💪';
+    const c=avg>=80?'var(--success)':avg>=60?'var(--accent)':'var(--err)';
+    const m=avg>=80?'¡Excelente! Keep it up!':avg>=60?'¡Buen progreso! Practice makes perfect.':'¡Sigue adelante! Every mistake is a lesson.';
+    bottom=`<div style="text-align:center;padding:16px 0" class="fade-in"><div style="font-size:42px;margin-bottom:6px">${e}</div><div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:${c}">${avg}%</div><p style="color:var(--muted);font-size:13px;margin-top:3px">${m}</p><button class="btn btn-ghost" onclick="doGenerate()" style="margin-top:14px">⚡ Siguiente Examen</button></div>`;
+  }
+  el.innerHTML=`<div class="card fade-in"><div class="card-hd"><div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">${badge(tLabel(S.examType),'rgba(212,175,55,.12)','var(--accent)','rgba(212,175,55,.25)')}${badge(level.split(' ')[0],'rgba(96,165,250,.12)','#60a5fa','rgba(96,165,250,.25)')}${badge('~'+(exam.estimatedMinutes||'?')+' min','rgba(167,139,250,.12)','#a78bfa','rgba(167,139,250,.25)')}</div><h2 style="font-family:'Playfair Display',serif;font-size:19px;margin-bottom:5px">${exam.title}</h2><p style="color:var(--muted);font-size:13px;line-height:1.6">${exam.instructions}</p></div><div class="card-bd">${qHTML}${bottom}</div>${exam.tip?`<div class="tip-bar"><span style="font-size:15px">💡</span><div><span style="font-size:11px;color:var(--success);font-weight:700;text-transform:uppercase;letter-spacing:1px">Tip: </span><span style="color:#D1D5DB;font-size:13px;line-height:1.6">${exam.tip}</span></div></div>`:''}</div>`;
+}
+
+function pickOpt(qId,btn,val){
+  if(S.submitted)return;
+  S.answers[qId]=val;
+  btn.closest('div').querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function renderHistory(){
+  document.getElementById('s-total').textContent=S.stats.total;
+  document.getElementById('s-streak').textContent=S.stats.streak+'d';
+  document.getElementById('s-avg').textContent=S.stats.avgScore+'%';
+  const el=document.getElementById('hist-list');
+  if(!S.history.length){el.innerHTML=`<div class="empty"><p style="color:var(--muted)">Completa tu primer examen para ver tu progreso aquí.</p></div>`;return;}
+  el.innerHTML=S.history.map(h=>{
+    const e=h.score>=80?'🏆':h.score>=60?'⭐':'💪';
+    const c=h.score>=80?'var(--success)':h.score>=60?'var(--accent)':'var(--err)';
+    const bg=h.score>=80?'rgba(34,197,94,.12)':h.score>=60?'rgba(212,175,55,.12)':'rgba(239,68,68,.12)';
+    return `<div class="hist-item"><div style="width:40px;height:40px;border-radius:9px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${e}</div><div style="flex:1"><p style="font-size:13px;font-weight:600;margin-bottom:2px">${h.title}</p><p style="font-size:11px;color:var(--muted)">${tLabel(h.type)} · ${h.date}</p></div><div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:${c}">${h.score}%</div></div>`;
+  }).join('')+`<p style="color:var(--muted);font-size:11px;margin-top:10px;text-align:center">* Historial de esta sesión</p>`;
+}
+
+renderExam();
+</script>
+</body>
+</html>
